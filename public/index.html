@@ -1,0 +1,194 @@
+<!doctype html>
+
+<!-- ASSIGN OUR ANGULAR MODULE -->
+<html ng-app="cardSearch">
+<head>
+	<!-- META -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1"><!-- Optimize mobile viewport -->
+
+	<title>MTG Card Search</title>
+
+	<!-- SCROLLS -->
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css"><!-- load bootstrap -->
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
+	<style>
+		html 					{ overflow-y:scroll; }
+		body 					{ padding-top:50px; }
+		.row					{ padding-bottom: 10px;}
+		.cardDiv				{ background-size: cover; width: 223px; height: 311px; margin: 10px; padding: 0px; display: inline-block; clear: both;}
+		.singleCardDisplayArea 	{ margin: 1em 0 0 0; }
+		.cardTitle				{ font-weight: bold; }
+		.pageHeader				{ padding: 1em; margin: 1em 0; background-color: #337ab7; color: white;}
+	</style>
+
+	<!-- SPELLS -->
+	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.min.js"></script><!-- load angular -->
+
+	<script src="js/controllers/main.js"></script> <!-- load up controller -->
+	<script src="js/services/card.js"></script> <!-- load card service -->
+	<script src="js/core.js"></script> <!-- load main application -->
+
+</head>
+<body ng-controller="mainController">
+	<div class="container">
+
+		<div class="col-sm-12 row">
+			<h1>MTG Card Search</h1>
+		</div>
+
+		
+		<div class="container">
+			<div class="col-sm-12 row pageHeader" ng-click="toggleSearchOptions()">
+					<strong>Search options</strong> 
+			</div>
+
+		<form>
+			<!-- Search options -->
+			<div class="col-sm-12 animate-hide" ng-hide="hideSearchOptions">
+				<div class="col-sm-6">
+					<!-- Text insertion -->
+					<label> Please insert your search options: </label>
+					<div class="form-group input-group">
+						<span class="input-group-addon"><strong>Card name:</strong></span>
+						<input type="text" class="form-control" placeholder="..." ng-model="formData.cName">
+					</div>
+					<div class="form-group input-group">
+						<span class="input-group-addon"><strong>Card type:</strong></span>
+						<input type="text" class="form-control" placeholder="..." ng-model="formData.cType">
+					</div>
+					<div class="form-group input-group">
+						<span class="input-group-addon"><strong>Card text:</strong></span>
+						<input type="text" class="form-control" placeholder="..." ng-model="formData.cText">
+					</div>
+					<p class="help-block">The search will look for any part matching the input. So if you're looking for a "Artifact Creature", </p>
+				</div>
+				<div class="col-sm-6">
+					<!-- Chosing colors -->
+					<div class="form-group"> 
+						<label 
+							class="checkbox" 
+							ng-repeat="color in cardOptions.colors">
+							<input 
+								type="checkbox"
+								value="{{color.name}}"
+								ng-model="color.selected"
+								name="selectedColors[]"> {{color.name}}
+						</label>
+					</div>
+					<!-- Chosing to force colors or not  -->
+					<div class="form-group"> 
+						<label>
+							Exclude other colors?
+						</label>
+						<label 
+							class="checkbox-inline">
+							<input 
+								type="radio"
+								ng-model="cardOptions.colorsForce"
+								value='true'
+								> Yes
+						</label>
+						<label 
+							class="checkbox-inline">
+							<input 
+								type="radio"
+								ng-model="cardOptions.colorsForce"
+								value='false'
+								> No
+						</label>
+					</div>			
+				</div>
+				<div class="row col-sm-6">
+					<button type="submit" class="btn btn-primary btn-lg" ng-click="findCards()">Search</button>
+				</div>
+				</form>
+			<p class="text-center" ng-show="loading">
+				<span class="fa fa-spinner fa-spin fa-3x"></span>
+			</p>
+			</div>
+		</div>
+
+
+		<!-- Card showing area -->
+		<div class="container">
+			<div class="col-sm-12 row pageHeader">
+				<!-- Create link that when clicks show multipleCardsDisplay -->
+				<span>
+					<strong>Multiple Card Display </strong>
+				</span>
+				<span ng-show="showCardFoundText">
+					<span class="label label-info">{{ cards.length }}</span>
+				</span>
+				<span ng-show="!showMultipleCards">
+					<strong> &raquo; Single Card Display </strong>
+				</span>
+			</div>
+
+			<div id="singleDiplayArea" ng-show="!showMultipleCards">
+			<div class="col-sm-12">
+				<span ng-click="toggleShowMultipleCards()" style="cursor: pointer;">
+					<p class="text-muted">&laquo; Press here to return to the former view.</p>
+				</span>
+			</div>
+
+				<div class="col-sm-5 text-center">
+					<div  
+						class="cardDiv"
+						style="
+							background-image: url('http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid={{singleCard.multiverseid}}&type=card');
+							">
+					</div>
+				</div>
+				<div class="col-sm-7 singleCardDisplayArea">
+					<p> <span class="cardTitle">Name</span>: {{ singleCard.name}} </p>
+					<p> <span class="cardTitle">Type</span>: {{ singleCard.type }} </p>
+					<p> <span class="cardTitle">Mana Cost</span>: {{ singleCard.manaCost }} </p>
+					<p> <span class="cardTitle">Text</span>: {{singleCard.text}} </p>
+				</div>		
+			</div>
+
+			<div id="multipleDisplayArea" ng-show="showMultipleCards">
+
+				<div>
+					<div 
+						class="cardDiv"
+						ng-repeat="c in cards" 
+						ng-click="previewOne(c)"
+						style="
+							background-image: url('http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid={{c.multiverseid}}&type=card');
+							">
+					</div>
+				</div>
+				<!-- a table showing stats of the cards found.
+				<div class="col-sm-12 text-center">
+
+					<table class="table table-striped">
+						<tr>
+							<th class="text-center">Name</th>
+							<th class="text-center">Artist</th>
+							<th class="text-center">CMC</th>
+							<th class="text-center">Type</th>
+							<th class="text-center">Text</th>
+							<th class="text-center">Colors</th>
+							<th class="text-center">ColorIdentity</th>
+						</tr>
+						<tr ng-repeat="c in cards">
+							<td>{{c.name}}</td>
+							<td>{{c.artist}}</td>
+							<td>{{c.cmc}}</td>
+							<td>{{c.type}}</td>
+							<td>{{c.text}}</td>
+							<td>{{c.colors}}</td>
+							<td>{{c.colorIdentity}}</td>
+						</tr>
+					</table>
+				</div>	
+				-->
+
+			</div>		
+
+		</div>
+
+</body>
+</html>
