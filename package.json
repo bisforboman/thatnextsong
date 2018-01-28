@@ -13,16 +13,18 @@
     "url": "git://github.com/bisforboman/mtgcardsearch.git"
   },
   "dependencies": {
-    "body-parser": "~1.4.3",
-    "express": "~4.6.1",
-    "fs": "0.0.2",
-    "gridfs-stream": "^1.1.1",
-    "hashmap": "^2.0.4",
-    "method-override": "~2.1.1",
-    "mongodb": "^2.1.4",
-    "mongoose": "^3.8.39",
-    "morgan": "~1.1.1",
-    "nodemon": "^1.8.1",
-    "p": "^0.2.0"
+    "angular": "*",
+    "body-parser": "*",
+    "express": "*",
+    "fs": "*",
+    "gridfs-stream": "*",
+    "hashmap": "*",
+    "method-override": "*",
+    "mongodb": "*",
+    "mongoose": "*",
+    "morgan": "*",
+    "node-gyp": "^3.6.2",
+    "nodemon": "*",
+    "p": "*"
   }
 }
